@@ -8,30 +8,54 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [voiceStatus, setVoiceStatus] = useState("");
-  // Use 'any' for browser-only APIs to avoid TS errors in SSR/Next.js
-  const recognitionRef = useRef<any>(null);
+  // Use a generic type for recognitionRef to avoid referencing window.SpeechRecognition
+  const recognitionRef = useRef<unknown>(null);
   const outputRef = useRef<HTMLDivElement>(null);
 
   // Voice recognition logic
   const initSpeechRecognition = () => {
-    if (typeof window === "undefined" || !("webkitSpeechRecognition" in window)) {
+    if (typeof window === "undefined") {
+      setVoiceStatus("❌ Speech recognition not supported in this browser");
+      return null;
+    }
+    // Only use the local win object for SpeechRecognition
+    const win = window as unknown as {
+      SpeechRecognition?: new () => unknown;
+      webkitSpeechRecognition?: new () => unknown;
+    };
+    if (!('SpeechRecognition' in win || 'webkitSpeechRecognition' in win)) {
       setVoiceStatus("❌ Speech recognition not supported in this browser");
       return null;
     }
     if (!recognitionRef.current) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = "en-US";
-      recognition.onstart = () => setVoiceStatus('<span class="wave-animation">🎙️</span> Listening...');
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setInput(transcript);
-        setVoiceStatus(`✅ Voice captured: &quot;${transcript}&quot;`);
+      const SpeechRecognitionClass = win.SpeechRecognition || win.webkitSpeechRecognition;
+      if (!SpeechRecognitionClass) {
+        setVoiceStatus("❌ Speech recognition not supported in this browser");
+        return null;
+      }
+      const recognition = new SpeechRecognitionClass();
+      (recognition as { continuous: boolean }).continuous = false;
+      (recognition as { interimResults: boolean }).interimResults = false;
+      (recognition as { lang: string }).lang = "en-US";
+      (recognition as { onstart: () => void }).onstart = () => setVoiceStatus('<span class="wave-animation">🎙️</span> Listening...');
+      (recognition as { onresult: (event: unknown) => void }).onresult = (event: unknown) => {
+        if (
+          typeof event === 'object' &&
+          event !== null &&
+          'results' in event &&
+          Array.isArray((event as any).results) &&
+          (event as any).results[0] &&
+          Array.isArray((event as any).results[0]) &&
+          (event as any).results[0][0] &&
+          typeof (event as any).results[0][0].transcript === 'string'
+        ) {
+          const transcript = (event as any).results[0][0].transcript;
+          setInput(transcript);
+          setVoiceStatus(`✅ Voice captured: &quot;${transcript}&quot;`);
+        }
       };
-      recognition.onerror = (event: any) => setVoiceStatus(`❌ Error: ${event.error}`);
-      recognition.onend = () => setIsRecording(false);
+      (recognition as { onerror: (event: unknown) => void }).onerror = (_event: unknown) => setVoiceStatus("❌ Error occurred during recognition");
+      (recognition as { onend: () => void }).onend = () => setIsRecording(false);
       recognitionRef.current = recognition;
     }
     return recognitionRef.current;
@@ -41,10 +65,10 @@ export default function HomePage() {
     const recognition = initSpeechRecognition();
     if (!recognition) return;
     if (isRecording) {
-      recognition.stop();
+      (recognition as { stop: () => void }).stop();
       setIsRecording(false);
     } else {
-      recognition.start();
+      (recognition as { start: () => void }).start();
       setIsRecording(true);
     }
   };

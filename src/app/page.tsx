@@ -43,15 +43,19 @@ export default function HomePage() {
           typeof event === 'object' &&
           event !== null &&
           'results' in event &&
-          Array.isArray((event as any).results) &&
-          (event as any).results[0] &&
-          Array.isArray((event as any).results[0]) &&
-          (event as any).results[0][0] &&
-          typeof (event as any).results[0][0].transcript === 'string'
+          Array.isArray((event as { [key: string]: unknown }).results)
         ) {
-          const transcript = (event as any).results[0][0].transcript;
-          setInput(transcript);
-          setVoiceStatus(`✅ Voice captured: &quot;${transcript}&quot;`);
+          const results = (event as { [key: string]: unknown }).results as unknown[];
+          if (
+            results[0] &&
+            Array.isArray(results[0]) &&
+            (results[0] as { [key: string]: unknown }[])[0] &&
+            typeof (results[0] as { [key: string]: unknown }[])[0].transcript === 'string'
+          ) {
+            const transcript = (results[0] as { [key: string]: unknown }[])[0].transcript as string;
+            setInput(transcript);
+            setVoiceStatus(`✅ Voice captured: &quot;${transcript}&quot;`);
+          }
         }
       };
       (recognition as { onerror: (event: unknown) => void }).onerror = (_event: unknown) => setVoiceStatus("❌ Error occurred during recognition");

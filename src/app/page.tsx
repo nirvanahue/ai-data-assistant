@@ -8,6 +8,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [voiceStatus, setVoiceStatus] = useState("");
+  // Use 'any' for browser-only APIs to avoid TS errors in SSR/Next.js
   const recognitionRef = useRef<any>(null);
   const outputRef = useRef<HTMLDivElement>(null);
 
@@ -18,7 +19,8 @@ export default function HomePage() {
       return null;
     }
     if (!recognitionRef.current) {
-      const recognition = new (window as any).webkitSpeechRecognition();
+      const SpeechRecognition = (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
       recognition.lang = "en-US";
@@ -26,7 +28,7 @@ export default function HomePage() {
       recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
-        setVoiceStatus(`✅ Voice captured: "${transcript}"`);
+        setVoiceStatus(`✅ Voice captured: &quot;${transcript}&quot;`);
       };
       recognition.onerror = (event: any) => setVoiceStatus(`❌ Error: ${event.error}`);
       recognition.onend = () => setIsRecording(false);
@@ -61,8 +63,8 @@ export default function HomePage() {
     }
   };
 
-  // Example click
-  const useExample = (example: string) => {
+  // Example click (renamed from useExample)
+  const handleExample = (example: string) => {
     setInput(example);
     setOutput("Your generated code will appear here...");
   };
@@ -90,11 +92,19 @@ export default function HomePage() {
         setLoading(false);
       }
     } else {
-      // Placeholder for code mode
-      setTimeout(() => {
-        setOutput("# Python code will appear here (connect to backend for real results)");
+      try {
+        const res = await fetch("/api/nl-to-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: input }),
+        });
+        const data = await res.json();
+        setOutput(data.code || "No code generated.");
+      } catch {
+        setOutput("Error generating code.");
+      } finally {
         setLoading(false);
-      }, 1500);
+      }
     }
   };
 
@@ -191,30 +201,30 @@ export default function HomePage() {
       <div className="examples-section">
         <h3 className="section-title"><span className="section-icon">💡</span>Example Queries (Click to Try!)</h3>
         <div id="sqlExamples" style={{ display: mode === 'sql' ? 'block' : 'none' }}>
-          <div className="example-item" onClick={() => useExample('Show me all users who are older than 25')}>
-            <div className="example-nl">💬 "Show me all users who are older than 25"</div>
+          <div className="example-item" onClick={() => handleExample('Show me all users who are older than 25')}>
+            <div className="example-nl">💬 &quot;Show me all users who are older than 25&quot;</div>
             <div className="example-sql">{"SELECT * FROM users WHERE age > 25;"}</div>
           </div>
-          <div className="example-item" onClick={() => useExample('Find the total sales amount for each product category')}>
-            <div className="example-nl">💬 "Find the total sales amount for each product category"</div>
+          <div className="example-item" onClick={() => handleExample('Find the total sales amount for each product category')}>
+            <div className="example-nl">💬 &quot;Find the total sales amount for each product category&quot;</div>
             <div className="example-sql">{`SELECT p.category, SUM(o.amount) as total_sales\nFROM orders o\nJOIN products p ON o.product_name = p.name\nGROUP BY p.category;`}</div>
           </div>
-          <div className="example-item" onClick={() => useExample('Get the top 5 customers by total order amount')}>
-            <div className="example-nl">💬 "Get the top 5 customers by total order amount"</div>
+          <div className="example-item" onClick={() => handleExample('Get the top 5 customers by total order amount')}>
+            <div className="example-nl">💬 &quot;Get the top 5 customers by total order amount&quot;</div>
             <div className="example-sql">{`SELECT u.name, SUM(o.amount) as total_spent\nFROM users u\nJOIN orders o ON u.id = o.user_id\nGROUP BY u.id, u.name\nORDER BY total_spent DESC\nLIMIT 5;`}</div>
           </div>
         </div>
         <div id="codeExamples" style={{ display: mode === 'code' ? 'block' : 'none' }}>
-          <div className="example-item" onClick={() => useExample('Create a bar chart showing sales by category')}>
-            <div className="example-nl">📊 "Create a bar chart showing sales by category"</div>
+          <div className="example-item" onClick={() => handleExample('Create a bar chart showing sales by category')}>
+            <div className="example-nl">📊 &quot;Create a bar chart showing sales by category&quot;</div>
             <div className="example-sql">{`import matplotlib.pyplot as plt\nimport pandas as pd\n\n# Sample data visualization\ndf.groupby('category')['amount'].sum().plot(kind='bar')\nplt.title('Sales by Category')\nplt.show()`}</div>
           </div>
-          <div className="example-item" onClick={() => useExample('Generate a correlation matrix for numerical data')}>
-            <div className="example-nl">📊 "Generate a correlation matrix for numerical data"</div>
+          <div className="example-item" onClick={() => handleExample('Generate a correlation matrix for numerical data')}>
+            <div className="example-nl">📊 &quot;Generate a correlation matrix for numerical data&quot;</div>
             <div className="example-sql">{`import seaborn as sns\nimport pandas as pd\n\n# Create correlation matrix\ncorr_matrix = df.corr()\nsns.heatmap(corr_matrix, annot=True, cmap='coolwarm')\nplt.title('Correlation Matrix')\nplt.show()`}</div>
           </div>
-          <div className="example-item" onClick={() => useExample('Show age distribution of users')}>
-            <div className="example-nl">📊 "Show age distribution of users"</div>
+          <div className="example-item" onClick={() => handleExample('Show age distribution of users')}>
+            <div className="example-nl">📊 &quot;Show age distribution of users&quot;</div>
             <div className="example-sql">{`import matplotlib.pyplot as plt\nimport pandas as pd\n\n# Age distribution histogram\nplt.hist(df['age'], bins=20, alpha=0.7, color='skyblue')\nplt.title('Age Distribution')\nplt.xlabel('Age')\nplt.ylabel('Frequency')\nplt.show()`}</div>
           </div>
         </div>

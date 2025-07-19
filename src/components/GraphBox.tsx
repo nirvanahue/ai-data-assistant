@@ -11,9 +11,18 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+interface ChartData {
+  labels: string[];
+  datasets: Array<{
+    label: string;
+    data: number[];
+    backgroundColor: string;
+  }>;
+}
+
 export type GraphBoxProps = {
   chartType: 'bar' | 'histogram' | null;
-  data: any;
+  data: ChartData;
 };
 
 const chartOptions = {
@@ -47,7 +56,7 @@ const chartOptions = {
     bar: {
       borderRadius: 8,
       borderSkipped: false,
-      backgroundColor: (ctx: any) => {
+      backgroundColor: (ctx: { chart: { ctx: CanvasRenderingContext2D; chartArea: { bottom: number; top: number } | null } }) => {
         const chart = ctx.chart;
         const { ctx: canvasCtx, chartArea } = chart;
         if (!chartArea) return '#667eea';

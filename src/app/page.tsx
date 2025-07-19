@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
+import GraphBox from "../components/GraphBox";
 
 export default function HomePage() {
   const [mode, setMode] = useState<'sql' | 'code'>('sql');
@@ -11,6 +12,8 @@ export default function HomePage() {
   // Use a generic type for recognitionRef to avoid referencing window.SpeechRecognition
   const recognitionRef = useRef<unknown>(null);
   const outputRef = useRef<HTMLDivElement>(null);
+  const [chartType, setChartType] = useState<'bar' | 'histogram' | null>(null);
+  const [chartData, setChartData] = useState<any>(null);
 
   // Voice recognition logic
   const initSpeechRecognition = () => {
@@ -81,6 +84,8 @@ export default function HomePage() {
   const switchMode = (newMode: 'sql' | 'code') => {
     setMode(newMode);
     setOutput("Your generated code will appear here...");
+    setChartType(null);
+    setChartData(null);
   };
 
   // Copy to clipboard
@@ -101,10 +106,13 @@ export default function HomePage() {
   const convertQuery = async () => {
     if (!input.trim()) {
       setOutput("Please enter a natural language query or use the microphone.");
+      setChartType(null);
+      setChartData(null);
       return;
     }
     setLoading(true);
     setOutput("");
+    // Do not reset chartType/chartData here, only after successful fetch
     if (mode === "sql") {
       try {
         const res = await fetch("/api/nl-to-sql", {
@@ -114,8 +122,12 @@ export default function HomePage() {
         });
         const data = await res.json();
         setOutput(data.sql || "No SQL generated.");
+        setChartType(null);
+        setChartData(null);
       } catch {
         setOutput("Error generating SQL.");
+        setChartType(null);
+        setChartData(null);
       } finally {
         setLoading(false);
       }
@@ -128,8 +140,33 @@ export default function HomePage() {
         });
         const data = await res.json();
         setOutput(data.code || "No code generated.");
+        // Detect chart type and set sample data
+        const lower = input.toLowerCase();
+        console.log('Processed input:', lower);
+        if (lower.includes("bar") && lower.includes("chart")) {
+          setChartType("bar");
+          setChartData({
+            labels: ["A", "B", "C", "D"],
+            datasets: [
+              { label: "Sales", data: [12, 19, 3, 5], backgroundColor: "#667eea" },
+            ],
+          });
+        } else if (lower.includes("histogram") || (lower.includes("age") && lower.includes("distribution"))) {
+          setChartType("histogram");
+          setChartData({
+            labels: ["0-10", "11-20", "21-30", "31-40", "41-50"],
+            datasets: [
+              { label: "Count", data: [2, 7, 15, 10, 4], backgroundColor: "#764ba2" },
+            ],
+          });
+        } else {
+          setChartType(null);
+          setChartData(null);
+        }
       } catch {
         setOutput("Error generating code.");
+        setChartType(null);
+        setChartData(null);
       } finally {
         setLoading(false);
       }
@@ -139,51 +176,20 @@ export default function HomePage() {
   return (
     <div className="container">
       <div className="header">
-        <h1>🤖 AI Data Assistant</h1>
-        <p className="subtitle">Voice-Powered Natural Language to SQL & Code Generator</p>
+        <h1>🗣️ SpeakQL</h1>
+        <p className="subtitle">Voice-Powered Natural Language to SQL & Data Analysis Code Generator</p>
         <div className="feature-badges">
           <div className="badge">🎤 Voice Recognition</div>
           <div className="badge">🔄 SQL Generation</div>
           <div className="badge">📊 Data Analysis Code</div>
+          <div className="badge">📈 Chart Preview</div>
           <div className="badge">🚀 AI-Powered</div>
         </div>
       </div>
+      {/* Restore mode toggle buttons above main-content */}
       <div className="main-controls">
         <button className={`mode-toggle${mode === 'sql' ? ' active' : ''}`} onClick={() => switchMode('sql')} id="sqlMode">🗄️ SQL Generator</button>
         <button className={`mode-toggle${mode === 'code' ? ' active' : ''}`} onClick={() => switchMode('code')} id="codeMode">📊 Data Analysis Code</button>
-      </div>
-      <div className="schema-section">
-        <h3 className="section-title"><span className="section-icon">🗂️</span>Sample Database Schema</h3>
-        <div className="schema-table">
-          <h4>👥 users</h4>
-          <div className="schema-columns">
-            <div className="schema-column">id (INT)</div>
-            <div className="schema-column">name (VARCHAR)</div>
-            <div className="schema-column">email (VARCHAR)</div>
-            <div className="schema-column">age (INT)</div>
-            <div className="schema-column">created_at (DATETIME)</div>
-          </div>
-        </div>
-        <div className="schema-table">
-          <h4>🛒 orders</h4>
-          <div className="schema-columns">
-            <div className="schema-column">id (INT)</div>
-            <div className="schema-column">user_id (INT)</div>
-            <div className="schema-column">product_name (VARCHAR)</div>
-            <div className="schema-column">amount (DECIMAL)</div>
-            <div className="schema-column">order_date (DATETIME)</div>
-          </div>
-        </div>
-        <div className="schema-table">
-          <h4>📦 products</h4>
-          <div className="schema-columns">
-            <div className="schema-column">id (INT)</div>
-            <div className="schema-column">name (VARCHAR)</div>
-            <div className="schema-column">price (DECIMAL)</div>
-            <div className="schema-column">category (VARCHAR)</div>
-            <div className="schema-column">stock (INT)</div>
-          </div>
-        </div>
       </div>
       <div className="main-content">
         <div className="input-section">
@@ -226,6 +232,12 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      {/* Chart preview immediately after main-content */}
+      {mode === 'code' && chartType && chartData && (
+        <div style={{ maxWidth: 400, margin: '24px auto 0', height: 300 }}>
+          <GraphBox chartType={chartType} data={chartData} />
+        </div>
+      )}
       <div className="examples-section">
         <h3 className="section-title"><span className="section-icon">💡</span>Example Queries (Click to Try!)</h3>
         <div id="sqlExamples" style={{ display: mode === 'sql' ? 'block' : 'none' }}>

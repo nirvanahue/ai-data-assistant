@@ -530,6 +530,95 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      
+      {/* Feature Showcase Section */}
+      <div className="feature-showcase">
+        <div className="showcase-header">
+          <h2 className="showcase-title">Everything You Need for Data-Driven Success</h2>
+          <p className="showcase-subtitle">Powerful features designed to transform how you interact with your business data</p>
+        </div>
+        
+        <div className="feature-grid">
+          <div className="feature-card">
+            <div className="feature-icon">🗣️</div>
+            <h3 className="feature-title">Natural Language Interface</h3>
+            <p className="feature-description">Ask questions in plain English and get instant SQL queries or data analysis code.</p>
+          </div>
+          
+          <div className="feature-card">
+            <div className="feature-icon">🔗</div>
+            <h3 className="feature-title">Universal Database Support</h3>
+            <p className="feature-description">Connect to PostgreSQL, MySQL, MongoDB, and more with seamless integration.</p>
+          </div>
+          
+          <div className="feature-card">
+            <div className="feature-icon">📊</div>
+            <h3 className="feature-title">Advanced Analytics</h3>
+            <p className="feature-description">Generate sophisticated data analysis code with statistical insights and predictions.</p>
+          </div>
+          
+          <div className="feature-card">
+            <div className="feature-icon">🎨</div>
+            <h3 className="feature-title">Creative Asset Generation</h3>
+            <p className="feature-description">Transform insights into social media posts, infographics, and presentation materials.</p>
+          </div>
+          
+          <div className="feature-card">
+            <div className="feature-icon">⚡</div>
+            <h3 className="feature-title">Lightning Fast</h3>
+            <p className="feature-description">Get results in seconds, not hours. Optimize your business intelligence workflow.</p>
+          </div>
+          
+          <div className="feature-card">
+            <div className="feature-icon">🔒</div>
+            <h3 className="feature-title">Enterprise Security</h3>
+            <p className="feature-description">Bank-grade security with SOC 2 compliance and end-to-end encryption.</p>
+          </div>
+        </div>
+        
+        <div className="how-it-works">
+          <h2 className="how-it-works-title">How It Works</h2>
+          <div className="steps-container">
+            <div className="step">
+              <div className="step-number">01</div>
+              <div className="step-icon">🔗</div>
+              <h3 className="step-title">Connect Your Database</h3>
+              <p className="step-description">Securely link your data sources with our one-click integration.</p>
+            </div>
+            
+            <div className="step">
+              <div className="step-number">02</div>
+              <div className="step-icon">💬</div>
+              <h3 className="step-title">Ask in Natural Language</h3>
+              <p className="step-description">Type your question or analysis request in plain English.</p>
+            </div>
+            
+            <div className="step">
+              <div className="step-number">03</div>
+              <div className="step-icon">⚡</div>
+              <h3 className="step-title">Get Instant Results</h3>
+              <p className="step-description">Receive SQL queries, analysis code, and visualizations immediately.</p>
+            </div>
+            
+            <div className="step">
+              <div className="step-number">04</div>
+              <div className="step-icon">📤</div>
+              <h3 className="step-title">Create & Share</h3>
+              <p className="step-description">Transform insights into beautiful assets ready for presentation.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="cta-section">
+          <h2 className="cta-title">Ready to Transform Your Data Strategy?</h2>
+          <p className="cta-subtitle">Join thousands of businesses already using AI to unlock insights and create compelling content from their data.</p>
+          <div className="cta-buttons">
+            <button className="cta-btn primary">Start Free Trial →</button>
+            <button className="cta-btn secondary">Schedule Demo</button>
+          </div>
+        </div>
+      </div>
+      
       <style jsx>{`
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; overflow-x: hidden; }
@@ -599,7 +688,7 @@ export default function HomePage() {
         .input-section:hover, .output-section:hover { transform: translateY(-5px); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
         .section-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 20px; color: #4a5568; display: flex; align-items: center; gap: 10px; }
         .section-icon { font-size: 1.8rem; }
-        .input-area { width: 100%; min-height: 120px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; resize: vertical; transition: all 0.3s ease; font-family: inherit; }
+        .input-area { width: 100%; min-height: 120px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; resize: vertical; transition: all 0.3s ease; font-family: inherit; color: #000000; }
         .input-area:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); transform: scale(1.02); }
         .voice-controls { display: flex; gap: 15px; margin-top: 15px; align-items: center; }
         .voice-btn { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); color: white; border: none; padding: 12px 20px; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
@@ -690,6 +779,244 @@ export default function HomePage() {
           }
           .action-buttons { flex-direction: column; }
           .action-btn { min-width: auto; }
+        }
+        
+        /* Feature Showcase Styling */
+        .feature-showcase {
+          margin-top: 60px;
+          padding: 60px 0;
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-radius: 30px;
+          box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .showcase-header {
+          text-align: center;
+          margin-bottom: 60px;
+          padding: 0 40px;
+        }
+        
+        .showcase-title {
+          font-size: 3rem;
+          font-weight: 700;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin-bottom: 20px;
+        }
+        
+        .showcase-subtitle {
+          font-size: 1.2rem;
+          color: #6b7280;
+          max-width: 600px;
+          margin: 0 auto;
+          line-height: 1.6;
+        }
+        
+        .feature-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+          gap: 30px;
+          padding: 0 40px;
+          margin-bottom: 80px;
+        }
+        
+        .feature-card {
+          background: white;
+          padding: 40px 30px;
+          border-radius: 20px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+          border: 1px solid #f3f4f6;
+          transition: all 0.3s ease;
+          text-align: center;
+        }
+        
+        .feature-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+        
+        .feature-icon {
+          font-size: 3rem;
+          margin-bottom: 20px;
+          display: block;
+        }
+        
+        .feature-title {
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: #1f2937;
+          margin-bottom: 15px;
+        }
+        
+        .feature-description {
+          color: #6b7280;
+          line-height: 1.6;
+          font-size: 1rem;
+        }
+        
+        .how-it-works {
+          padding: 0 40px;
+          margin-bottom: 80px;
+        }
+        
+        .how-it-works-title {
+          text-align: center;
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: #1f2937;
+          margin-bottom: 50px;
+        }
+        
+        .steps-container {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 40px;
+        }
+        
+        .step {
+          text-align: center;
+          position: relative;
+        }
+        
+        .step-number {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 1.2rem;
+          margin: 0 auto 20px;
+        }
+        
+        .step-icon {
+          font-size: 2.5rem;
+          margin-bottom: 15px;
+          display: block;
+        }
+        
+        .step-title {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: #1f2937;
+          margin-bottom: 10px;
+        }
+        
+        .step-description {
+          color: #6b7280;
+          line-height: 1.6;
+        }
+        
+        .cta-section {
+          text-align: center;
+          padding: 60px 40px;
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          border-radius: 20px;
+          margin: 0 40px;
+        }
+        
+        .cta-title {
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: #1f2937;
+          margin-bottom: 20px;
+        }
+        
+        .cta-subtitle {
+          font-size: 1.1rem;
+          color: #6b7280;
+          margin-bottom: 40px;
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
+          line-height: 1.6;
+        }
+        
+        .cta-buttons {
+          display: flex;
+          gap: 20px;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+        
+        .cta-btn {
+          padding: 15px 30px;
+          border-radius: 12px;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          border: none;
+          min-width: 180px;
+        }
+        
+        .cta-btn.primary {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+        }
+        
+        .cta-btn.primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .cta-btn.secondary {
+          background: white;
+          color: #667eea;
+          border: 2px solid #667eea;
+        }
+        
+        .cta-btn.secondary:hover {
+          background: #667eea;
+          color: white;
+          transform: translateY(-2px);
+          box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+          .showcase-title {
+            font-size: 2rem;
+          }
+          
+          .feature-grid {
+            grid-template-columns: 1fr;
+            padding: 0 20px;
+          }
+          
+          .feature-card {
+            padding: 30px 20px;
+          }
+          
+          .steps-container {
+            grid-template-columns: 1fr;
+            gap: 30px;
+          }
+          
+          .cta-section {
+            padding: 40px 20px;
+            margin: 0 20px;
+          }
+          
+          .cta-title {
+            font-size: 2rem;
+          }
+          
+          .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+          }
+          
+          .cta-btn {
+            width: 100%;
+            max-width: 300px;
+          }
         }
       `}</style>
     </div>

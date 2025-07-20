@@ -358,23 +358,45 @@ export default function HomePage() {
         // Detect chart type and set sample data
         const lower = input.toLowerCase();
         
-        if (lower.includes("bar") && lower.includes("chart")) {
+        // Bar chart detection
+        if (lower.includes("bar") && lower.includes("chart") || 
+            lower.includes("bar chart") || 
+            lower.includes("sales by category")) {
           setChartType("bar");
           setChartData({
-            labels: ["A", "B", "C", "D"],
+            labels: ["Electronics", "Clothing", "Books", "Food", "Sports"],
             datasets: [
-              { label: "Sales", data: [12, 19, 3, 5], backgroundColor: "#667eea" },
+              { label: "Sales", data: [12500, 8900, 3200, 5600, 4100], backgroundColor: "#667eea" },
             ],
           });
-        } else if (lower.includes("histogram") || (lower.includes("age") && lower.includes("distribution"))) {
+        } 
+        // Histogram/Distribution detection
+        else if (lower.includes("histogram") || 
+                 lower.includes("age distribution") || 
+                 lower.includes("distribution") ||
+                 lower.includes("age") && lower.includes("users")) {
           setChartType("histogram");
           setChartData({
-            labels: ["0-10", "11-20", "21-30", "31-40", "41-50"],
+            labels: ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"],
             datasets: [
-              { label: "Count", data: [2, 7, 15, 10, 4], backgroundColor: "#764ba2" },
+              { label: "Users", data: [45, 78, 52, 31, 18, 12], backgroundColor: "#764ba2" },
             ],
           });
-        } else {
+        }
+        // Correlation matrix detection
+        else if (lower.includes("correlation") || 
+                 lower.includes("correlation matrix") ||
+                 lower.includes("numerical data")) {
+          setChartType("bar"); // Using bar chart to represent correlation data
+          setChartData({
+            labels: ["Age", "Income", "Spending", "Satisfaction", "Engagement"],
+            datasets: [
+              { label: "Correlation", data: [0.85, 0.72, 0.91, 0.68, 0.79], backgroundColor: "#48bb78" },
+            ],
+          });
+        }
+        // Default: no chart
+        else {
           setChartType(null);
           setChartData(null);
         }

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// You can replace this with your preferred AI service
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "https://api.openai.com/v1/chat/completions";
-const AI_API_KEY = process.env.AI_API_KEY;
+// Google Gemini API configuration
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyAXYYcN4qoBjS8heTGpitKAb7lY2iejvu0";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // If you have an AI service configured, use it
-    if (AI_API_KEY && AI_SERVICE_URL) {
-      return await generateSQLWithAI(question);
+    // If you have Gemini API configured, use it
+    if (GEMINI_API_KEY) {
+      return await generateSQLWithGemini(question);
     }
 
     // Fallback to intelligent SQL generation based on keywords
@@ -33,48 +33,53 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function generateSQLWithAI(question: string) {
+async function generateSQLWithGemini(question: string) {
   try {
-    const response = await fetch(AI_SERVICE_URL, {
+    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${AI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
+        contents: [
           {
-            role: "system",
-            content: `You are a SQL expert. Generate only SQL queries without explanations. 
-            Use standard SQL syntax. Assume common table names like: users, orders, products, customers, sales.
-            Common columns: id, name, email, created_at, amount, category, user_id, product_id, etc.`
-          },
-          {
-            role: "user",
-            content: `Convert this to SQL: ${question}`
+            parts: [
+              {
+                text: `You are a SQL expert. Generate only SQL queries without explanations. 
+Use standard SQL syntax. Assume common table names like: users, orders, products, customers, sales.
+Common columns: id, name, email, created_at, amount, category, user_id, product_id, etc.
+
+Convert this to SQL: ${question}
+
+Return only the SQL query without any explanations or markdown formatting.`
+              }
+            ]
           }
         ],
-        max_tokens: 200,
-        temperature: 0.1
+        generationConfig: {
+          temperature: 0.1,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 500,
+        }
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`AI service error: ${response.status}`);
+      throw new Error(`Gemini API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const sql = data.choices?.[0]?.message?.content?.trim();
+    const sql = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
     
     if (!sql) {
-      throw new Error("No SQL generated from AI service");
+      throw new Error("No SQL generated from Gemini API");
     }
 
     return NextResponse.json({ sql });
 
   } catch (error) {
-    console.error("AI service error:", error);
+    console.error("Gemini API error:", error);
     // Fallback to keyword-based generation
     const sql = generateSQLFromKeywords(question);
     return NextResponse.json({ sql });

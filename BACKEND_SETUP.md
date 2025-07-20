@@ -1,69 +1,66 @@
 # 🚀 SpeakQL Backend Setup Guide
 
 ## Overview
-Your SpeakQL app now has a sophisticated backend that can connect to real AI services for generating SQL queries and data analysis code.
+Your SpeakQL app now has a sophisticated backend that uses **Google Gemini API** for generating SQL queries and data analysis code, with intelligent fallback systems.
 
 ## 🔧 Setup Options
 
-### Option 1: OpenAI (Recommended)
-1. Get an API key from [OpenAI](https://platform.openai.com/api-keys)
+### Option 1: Google Gemini (Currently Configured) ✅
+Your app is already configured with Gemini API! The API key is set up and ready to use.
+
+**Features:**
+- **AI-Powered SQL Generation**: Converts natural language to SQL using Gemini Pro
+- **AI-Powered Code Generation**: Creates Python data analysis code with Gemini Pro
+- **Smart Fallback**: Uses keyword-based generation if API fails
+- **Professional Code**: Generates complete, runnable Python code
+
+### Option 2: Custom Gemini API Key
+If you want to use your own Gemini API key:
+1. Get an API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
 2. Create a `.env.local` file in your project root:
 ```env
-AI_SERVICE_URL=https://api.openai.com/v1/chat/completions
-AI_API_KEY=your_openai_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-### Option 2: Anthropic Claude
-1. Get an API key from [Anthropic](https://console.anthropic.com/)
-2. Create a `.env.local` file:
-```env
-AI_SERVICE_URL=https://api.anthropic.com/v1/messages
-AI_API_KEY=your_anthropic_api_key_here
-```
-
-### Option 3: Local AI (Ollama, etc.)
-1. Set up a local AI service
-2. Create a `.env.local` file:
-```env
-AI_SERVICE_URL=http://localhost:11434/v1/chat/completions
-AI_API_KEY=your_local_api_key_here
-```
-
-### Option 4: No AI Service (Fallback Mode)
-- If no API keys are provided, the app will use intelligent keyword-based generation
+### Option 3: No API Key (Fallback Mode)
+- If no API key is provided, the app will use intelligent keyword-based generation
 - This works immediately without any setup
 
 ## 🎯 Features
 
-### SQL Generation
-- **AI-Powered**: Uses GPT-3.5-turbo or similar for natural language to SQL
+### SQL Generation with Gemini
+- **AI-Powered**: Uses Gemini Pro for natural language to SQL conversion
 - **Smart Fallback**: Keyword-based SQL generation for common queries
-- **Error Handling**: Graceful fallback if AI service is unavailable
+- **Error Handling**: Graceful fallback if API is unavailable
+- **Professional Queries**: Generates proper SQL with JOINs, GROUP BY, etc.
 
-### Data Analysis Code
+### Data Analysis Code with Gemini
 - **Complete Python Code**: Generates runnable pandas/matplotlib/seaborn code
 - **Multiple Chart Types**: Bar charts, histograms, correlation matrices, scatter plots
 - **Professional Styling**: Uses modern chart styling and best practices
+- **Real Data Examples**: Includes sample data for immediate testing
 
 ### Supported Query Types
 
-#### SQL Queries:
+#### SQL Queries (Gemini + Fallback):
 - "Show me all users who are older than 25"
 - "Find the total sales amount for each product category"
 - "Get the top 5 customers by total order amount"
 - "Find users with email addresses"
+- "Show me sales data from last month"
 
-#### Data Analysis:
+#### Data Analysis (Gemini + Fallback):
 - "Create a bar chart showing sales by category"
 - "Generate a correlation matrix for numerical data"
 - "Show age distribution of users"
 - "Create a scatter plot of age vs income"
+- "Analyze customer spending patterns"
 
 ## 🔄 How It Works
 
 1. **User Input**: Natural language query
-2. **AI Processing**: Sends to configured AI service
-3. **Fallback**: If AI fails, uses keyword-based generation
+2. **Gemini Processing**: Sends to Google Gemini Pro API
+3. **Fallback**: If Gemini fails, uses keyword-based generation
 4. **Response**: Returns formatted SQL or Python code
 5. **Chart Detection**: Automatically detects chart types for visualization
 
@@ -85,44 +82,52 @@ curl -X POST http://localhost:3000/api/nl-to-code \
 
 ## 🔒 Security Notes
 
-- Never commit your `.env.local` file to version control
-- Use environment variables for production deployments
-- Consider rate limiting for AI API calls
+- The current Gemini API key is configured for development
+- For production, use environment variables in your hosting platform
+- Consider rate limiting for API calls
 - Monitor API usage and costs
 
 ## 🚀 Deployment
 
 ### Vercel:
-1. Add environment variables in Vercel dashboard
+1. Add `GEMINI_API_KEY` environment variable in Vercel dashboard
 2. Deploy automatically from GitHub
 
 ### Other Platforms:
-1. Set environment variables in your hosting platform
+1. Set `GEMINI_API_KEY` environment variable in your hosting platform
 2. Ensure `.env.local` is in `.gitignore`
 
 ## 📊 Performance
 
-- **AI Mode**: ~2-5 seconds response time
+- **Gemini Mode**: ~2-4 seconds response time
 - **Fallback Mode**: ~100ms response time
 - **Caching**: Consider implementing response caching for repeated queries
 
 ## 🎨 Customization
 
-You can customize the AI prompts by editing:
+You can customize the Gemini prompts by editing:
 - `src/app/api/nl-to-sql/route.ts` - SQL generation logic
 - `src/app/api/nl-to-code/route.ts` - Code generation logic
 
 ## 🆘 Troubleshooting
 
 ### Common Issues:
-1. **API Key Invalid**: Check your API key and service URL
-2. **Rate Limits**: Implement exponential backoff
+1. **API Key Invalid**: Check your Gemini API key
+2. **Rate Limits**: Gemini has generous rate limits
 3. **Network Issues**: Check firewall and proxy settings
 4. **CORS Errors**: Ensure proper CORS configuration
 
 ### Debug Mode:
 Add `DEBUG=true` to your `.env.local` for detailed logging.
 
+## 🌟 Gemini Advantages
+
+- **Free Tier**: Generous free usage limits
+- **High Quality**: Excellent code generation capabilities
+- **Fast Response**: Quick API response times
+- **Reliable**: Google's infrastructure
+- **Multilingual**: Supports multiple programming languages
+
 ---
 
-**Ready to go!** Your SpeakQL app will work immediately with fallback mode, and you can add AI services anytime for enhanced capabilities. 
+**Ready to go!** Your SpeakQL app is now powered by Google Gemini and will generate high-quality SQL queries and Python code! 🚀 

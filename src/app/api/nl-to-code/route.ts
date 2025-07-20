@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// You can replace this with your preferred AI service
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "https://api.openai.com/v1/chat/completions";
-const AI_API_KEY = process.env.AI_API_KEY;
+// Google Gemini API configuration
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyAXYYcN4qoBjS8heTGpitKAb7lY2iejvu0";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // If you have an AI service configured, use it
-    if (AI_API_KEY && AI_SERVICE_URL) {
-      return await generateCodeWithAI(question);
+    // If you have Gemini API configured, use it
+    if (GEMINI_API_KEY) {
+      return await generateCodeWithGemini(question);
     }
 
     // Fallback to intelligent code generation based on keywords
@@ -33,48 +33,53 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function generateCodeWithAI(question: string) {
+async function generateCodeWithGemini(question: string) {
   try {
-    const response = await fetch(AI_SERVICE_URL, {
+    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${AI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
+        contents: [
           {
-            role: "system",
-            content: `You are a Python data analysis expert. Generate only Python code using pandas, matplotlib, seaborn, numpy.
-            Include proper imports and complete, runnable code. Focus on data visualization and analysis.
-            Assume you have a DataFrame called 'df' with common columns like: age, income, category, amount, date, etc.`
-          },
-          {
-            role: "user",
-            content: `Generate Python code for: ${question}`
+            parts: [
+              {
+                text: `You are a Python data analysis expert. Generate only Python code using pandas, matplotlib, seaborn, numpy.
+Include proper imports and complete, runnable code. Focus on data visualization and analysis.
+Assume you have a DataFrame called 'df' with common columns like: age, income, category, amount, date, etc.
+
+Generate Python code for: ${question}
+
+Return only the Python code without any explanations or markdown formatting.`
+              }
+            ]
           }
         ],
-        max_tokens: 300,
-        temperature: 0.2
+        generationConfig: {
+          temperature: 0.2,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1000,
+        }
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`AI service error: ${response.status}`);
+      throw new Error(`Gemini API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const code = data.choices?.[0]?.message?.content?.trim();
+    const code = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
     
     if (!code) {
-      throw new Error("No code generated from AI service");
+      throw new Error("No code generated from Gemini API");
     }
 
     return NextResponse.json({ code });
 
   } catch (error) {
-    console.error("AI service error:", error);
+    console.error("Gemini API error:", error);
     // Fallback to keyword-based generation
     const code = generateCodeFromKeywords(question);
     return NextResponse.json({ code });
@@ -115,7 +120,7 @@ plt.ylabel('Sales ($)', fontsize=12)
 for bar in bars:
     height = bar.get_height()
     plt.text(bar.get_x() + bar.get_width()/2., height + 100,
-             f'${int(height):,}', ha='center', va='bottom', fontweight='bold')
+             '$' + str(int(height)), ha='center', va='bottom', fontweight='bold')
 
 # Rotate x-axis labels for better readability
 plt.xticks(rotation=45, ha='right')

@@ -27,6 +27,8 @@ export default function HomePage() {
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [generatingPDF, setGeneratingPDF] = useState(false);
   const [generatingInsight, setGeneratingInsight] = useState(false);
+  const [sharingEmail, setSharingEmail] = useState(false);
+  const [creatingAlert, setCreatingAlert] = useState(false);
 
   // Voice recognition logic
   const initSpeechRecognition = () => {
@@ -202,6 +204,264 @@ export default function HomePage() {
       alert("Error generating PDF report. Please try again.");
     } finally {
       setGeneratingPDF(false);
+    }
+  };
+
+  // Share via Email
+  const shareViaEmail = async () => {
+    if (!input.trim() || output === "Your generated code will appear here...") {
+      alert("Please generate some content first before sharing via email.");
+      return;
+    }
+
+    setSharingEmail(true);
+    try {
+      const subject = encodeURIComponent(`SpeakQL Analysis: ${input.substring(0, 50)}${input.length > 50 ? '...' : ''}`);
+      const body = encodeURIComponent(`
+🗣️ SpeakQL Analysis Report
+
+Query: ${input}
+
+Generated ${mode === 'sql' ? 'SQL Query' : 'Analysis Code'}:
+${output}
+
+Generated on: ${new Date().toLocaleString()}
+Powered by SpeakQL - Voice-Powered Data Analysis
+
+---
+This report was generated using SpeakQL's AI-powered natural language processing.
+      `);
+      
+      const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
+      window.open(mailtoLink, '_blank');
+      
+      // Show success message
+      setTimeout(() => {
+        alert("Email client opened! The analysis has been prepared for sharing.");
+      }, 500);
+    } catch (error) {
+      console.error("Error sharing via email:", error);
+      alert("Error sharing via email. Please try again.");
+    } finally {
+      setSharingEmail(false);
+    }
+  };
+
+  // Create Alert
+  const createAlert = async () => {
+    if (!input.trim() || output === "Your generated code will appear here...") {
+      alert("Please generate some content first before creating an alert.");
+      return;
+    }
+
+    setCreatingAlert(true);
+    try {
+      // Create alert content based on the analysis
+      const alertContent = generateAlertContent(input, mode, output);
+      
+      // Create a temporary div for the alert card
+      const alertDiv = document.createElement('div');
+      alertDiv.style.cssText = `
+        width: 800px;
+        height: 600px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        color: white;
+        padding: 40px;
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: fixed;
+        top: -9999px;
+        left: -9999px;
+        z-index: -1;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      `;
+
+      alertDiv.innerHTML = `
+        <div style="text-align: center;">
+          <div style="font-size: 80px; margin-bottom: 20px;">🚨</div>
+          <h1 style="font-size: 36px; font-weight: bold; margin: 0 0 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Data Alert Generated</h1>
+          <h2 style="font-size: 28px; font-weight: 600; margin: 0 0 15px 0; opacity: 0.9;">${alertContent.title}</h2>
+          <p style="font-size: 18px; opacity: 0.8; margin: 0 0 30px 0; line-height: 1.5;">${alertContent.description}</p>
+          
+          <div style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px; margin: 20px 0;">
+            <h3 style="font-size: 20px; margin: 0 0 15px 0; font-weight: 600;">Alert Details:</h3>
+            <div style="text-align: left; font-size: 16px; line-height: 1.6;">
+              ${alertContent.details}
+            </div>
+          </div>
+          
+          <div style="display: flex; justify-content: center; gap: 20px; margin-top: 30px;">
+            <div style="background: rgba(255,255,255,0.15); padding: 15px 20px; border-radius: 10px;">
+              <div style="font-size: 24px; font-weight: bold;">${alertContent.priority}</div>
+              <div style="font-size: 14px; opacity: 0.8;">Priority Level</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.15); padding: 15px 20px; border-radius: 10px;">
+              <div style="font-size: 24px; font-weight: bold;">${alertContent.action}</div>
+              <div style="font-size: 14px; opacity: 0.8;">Recommended Action</div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="text-align: center; font-size: 14px; opacity: 0.7; margin-top: 20px;">
+          Generated on ${new Date().toLocaleString()} | 🗣️ Powered by SpeakQL
+        </div>
+      `;
+
+      document.body.appendChild(alertDiv);
+
+      // Convert to canvas and download
+      const canvas = await html2canvas(alertDiv, {
+        width: 800,
+        height: 600,
+        scale: 2,
+        useCORS: true,
+        allowTaint: true
+      });
+
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `speakql-alert-${Date.now()}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+
+      // Clean up
+      document.body.removeChild(alertDiv);
+      
+      // Show success message
+      setTimeout(() => {
+        alert("Alert generated successfully! Check your downloads for the alert image.");
+      }, 500);
+    } catch (error) {
+      console.error("Error creating alert:", error);
+      alert("Error creating alert. Please try again.");
+    } finally {
+      setCreatingAlert(false);
+    }
+  };
+
+  // Helper function to generate alert content
+  const generateAlertContent = (query: string, currentMode: 'sql' | 'code', output: string) => {
+    const lowerQuery = query.toLowerCase();
+    
+    if (currentMode === 'sql') {
+      if (lowerQuery.includes('sales') && lowerQuery.includes('total')) {
+        return {
+          title: "📈 Sales Performance Alert",
+          description: "Critical sales analysis reveals important business metrics that require attention",
+          priority: "High",
+          action: "Review",
+          details: `
+            • Sales data analysis completed<br>
+            • Revenue metrics identified<br>
+            • Performance trends detected<br>
+            • Growth opportunities highlighted<br>
+            • SQL query: ${output.substring(0, 100)}...
+          `
+        };
+      } else if (lowerQuery.includes('user') && lowerQuery.includes('age')) {
+        return {
+          title: "👥 User Demographics Alert",
+          description: "User age distribution analysis shows important demographic patterns",
+          priority: "Medium",
+          action: "Monitor",
+          details: `
+            • User demographics analyzed<br>
+            • Age distribution patterns identified<br>
+            • Customer segmentation insights<br>
+            • Target audience data available<br>
+            • SQL query: ${output.substring(0, 100)}...
+          `
+        };
+      } else if (lowerQuery.includes('customer') && lowerQuery.includes('top')) {
+        return {
+          title: "🏆 VIP Customer Alert",
+          description: "Top customer analysis reveals high-value customer segments",
+          priority: "High",
+          action: "Act",
+          details: `
+            • VIP customers identified<br>
+            • Revenue contribution analyzed<br>
+            • Loyalty patterns detected<br>
+            • Retention opportunities found<br>
+            • SQL query: ${output.substring(0, 100)}...
+          `
+        };
+      } else {
+        return {
+          title: "🔍 Data Query Alert",
+          description: "SQL query execution completed with important data insights",
+          priority: "Medium",
+          action: "Review",
+          details: `
+            • Database query executed<br>
+            • Data insights generated<br>
+            • Results available for analysis<br>
+            • Business intelligence enhanced<br>
+            • SQL query: ${output.substring(0, 100)}...
+          `
+        };
+      }
+    } else {
+      if (lowerQuery.includes('bar') && lowerQuery.includes('chart')) {
+        return {
+          title: "📊 Visualization Alert",
+          description: "Bar chart visualization created for data presentation",
+          priority: "Low",
+          action: "Share",
+          details: `
+            • Bar chart visualization generated<br>
+            • Data patterns visualized<br>
+            • Presentation-ready graphics<br>
+            • Insights clearly displayed<br>
+            • Python code: ${output.substring(0, 100)}...
+          `
+        };
+      } else if (lowerQuery.includes('correlation') || lowerQuery.includes('matrix')) {
+        return {
+          title: "🔗 Correlation Alert",
+          description: "Correlation analysis reveals important variable relationships",
+          priority: "Medium",
+          action: "Analyze",
+          details: `
+            • Correlation matrix generated<br>
+            • Variable relationships identified<br>
+            • Statistical insights available<br>
+            • Data patterns discovered<br>
+            • Python code: ${output.substring(0, 100)}...
+          `
+        };
+      } else if (lowerQuery.includes('distribution') || lowerQuery.includes('histogram')) {
+        return {
+          title: "📈 Distribution Alert",
+          description: "Distribution analysis shows data spread and patterns",
+          priority: "Medium",
+          action: "Review",
+          details: `
+            • Distribution analysis completed<br>
+            • Data spread patterns identified<br>
+            • Statistical insights generated<br>
+            • Outliers detected<br>
+            • Python code: ${output.substring(0, 100)}...
+          `
+        };
+      } else {
+        return {
+          title: "🔬 Analysis Alert",
+          description: "Data analysis code generated for business intelligence",
+          priority: "Low",
+          action: "Execute",
+          details: `
+            • Analysis code generated<br>
+            • Data processing ready<br>
+            • Insights available<br>
+            • Business intelligence enhanced<br>
+            • Python code: ${output.substring(0, 100)}...
+          `
+        };
+      }
     }
   };
 
@@ -613,7 +873,7 @@ export default function HomePage() {
             <button className="copy-btn" type="button" onClick={copyToClipboard}>📋 Copy</button>
             <div id="outputContent">{output}</div>
           </div>
-          {/* Action buttons for PDF and Insight Post */}
+          {/* Action buttons for PDF, Insight Post, Email, and Alert */}
           {output !== "Your generated code will appear here..." && (
             <div className="action-buttons">
               <button 
@@ -629,6 +889,20 @@ export default function HomePage() {
                 disabled={generatingInsight}
               >
                 {generatingInsight ? "⏳ Creating..." : "📢 Create Insight Post"}
+              </button>
+              <button 
+                className="action-btn email-btn" 
+                onClick={shareViaEmail}
+                disabled={sharingEmail}
+              >
+                {sharingEmail ? "⏳ Opening..." : "📧 Share via Email"}
+              </button>
+              <button 
+                className="action-btn alert-btn" 
+                onClick={createAlert}
+                disabled={creatingAlert}
+              >
+                {creatingAlert ? "⏳ Creating..." : "🚨 Create Alert"}
               </button>
             </div>
           )}
@@ -881,6 +1155,22 @@ export default function HomePage() {
         .insight-btn:hover:not(:disabled) { 
           transform: translateY(-2px); 
           box-shadow: 0 8px 20px rgba(237, 137, 54, 0.3); 
+        }
+        .email-btn { 
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); 
+          color: white; 
+        }
+        .email-btn:hover:not(:disabled) { 
+          transform: translateY(-2px); 
+          box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3); 
+        }
+        .alert-btn { 
+          background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); 
+          color: white; 
+        }
+        .alert-btn:hover:not(:disabled) { 
+          transform: translateY(-2px); 
+          box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3); 
         }
         
         .schema-section { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2); margin-bottom: 30px; }

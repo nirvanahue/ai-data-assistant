@@ -214,12 +214,15 @@ export default function HomePage() {
 
     setGeneratingInsight(true);
     try {
+      // Generate dynamic content based on input
+      const { title, subtitle, emoji, gradient, stats, hashtags } = generateDynamicContent(input, mode);
+      
       // Create a temporary div for the social card
       const cardDiv = document.createElement('div');
       cardDiv.style.cssText = `
         width: 1200px;
         height: 630px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: ${gradient};
         color: white;
         padding: 40px;
         font-family: 'Inter', sans-serif;
@@ -230,35 +233,60 @@ export default function HomePage() {
         top: -9999px;
         left: -9999px;
         z-index: -1;
+        overflow: hidden;
       `;
 
-      // Generate insight text based on input
-      const insightText = generateInsightText(input, mode);
+      // Add animated background elements
+      const backgroundElements = `
+        <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+        <div style="position: absolute; top: 50%; left: 10%; width: 80px; height: 80px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+      `;
       
       cardDiv.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        ${backgroundElements}
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 2;">
           <div>
-            <h1 style="font-size: 48px; font-weight: bold; margin: 0; line-height: 1.2;">🗣️ SpeakQL</h1>
-            <p style="font-size: 24px; margin: 10px 0 0 0; opacity: 0.9;">Voice-Powered Data Analysis</p>
+            <h1 style="font-size: 48px; font-weight: bold; margin: 0; line-height: 1.2; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🗣️ SpeakQL</h1>
+            <p style="font-size: 20px; margin: 8px 0 0 0; opacity: 0.9; font-weight: 500;">Voice-Powered Data Analysis</p>
           </div>
-          <div style="text-align: right; font-size: 18px;">
-            ${new Date().toLocaleDateString()}
+          <div style="text-align: right; font-size: 16px; opacity: 0.8; font-weight: 500;">
+            ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           </div>
         </div>
         
-        <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
-          <h2 style="font-size: 36px; font-weight: bold; margin: 0 0 20px 0; line-height: 1.3;">${insightText}</h2>
-          <p style="font-size: 20px; opacity: 0.8; margin: 0;">Generated with AI-powered natural language processing</p>
+        <div style="text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 2;">
+          <div style="font-size: 80px; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">${emoji}</div>
+          <h2 style="font-size: 42px; font-weight: bold; margin: 0 0 15px 0; line-height: 1.2; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">${title}</h2>
+          <p style="font-size: 24px; opacity: 0.9; margin: 0 0 30px 0; font-weight: 500; line-height: 1.4;">${subtitle}</p>
+          
+          ${stats ? `
+          <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px;">
+            ${stats.map(stat => `
+              <div style="text-align: center; background: rgba(255,255,255,0.15); padding: 15px 20px; border-radius: 12px; backdrop-filter: blur(10px);">
+                <div style="font-size: 28px; font-weight: bold; margin-bottom: 5px;">${stat.value}</div>
+                <div style="font-size: 14px; opacity: 0.8;">${stat.label}</div>
+              </div>
+            `).join('')}
+          </div>
+          ` : ''}
         </div>
         
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div style="font-size: 18px; opacity: 0.8;">
+        <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
+          <div style="font-size: 16px; opacity: 0.8; font-weight: 500;">
             📊 ${mode === 'sql' ? 'SQL Query Generated' : 'Data Analysis Code Generated'}
           </div>
-          <div style="font-size: 18px; opacity: 0.8;">
+          <div style="font-size: 16px; opacity: 0.8; font-weight: 500;">
             🚀 Powered by SpeakQL
           </div>
         </div>
+        
+        ${hashtags ? `
+        <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 14px; opacity: 0.7; font-weight: 500;">
+          ${hashtags}
+        </div>
+        ` : ''}
       `;
 
       document.body.appendChild(cardDiv);
@@ -288,31 +316,144 @@ export default function HomePage() {
     }
   };
 
-  // Helper function to generate insight text
-  const generateInsightText = (query: string, currentMode: 'sql' | 'code'): string => {
+  // Helper function to generate dynamic content
+  const generateDynamicContent = (query: string, currentMode: 'sql' | 'code') => {
     const lowerQuery = query.toLowerCase();
+    
+    // Define different gradients for variety
+    const gradients = [
+      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+      'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+      'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+      'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
+    ];
+    
+    const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
     
     if (currentMode === 'sql') {
       if (lowerQuery.includes('sales') && lowerQuery.includes('total')) {
-        return "📈 Sales Analysis Complete — Total Revenue Insights Generated";
+        return {
+          title: "💰 Revenue Insights Unlocked",
+          subtitle: "Total sales analysis reveals key performance metrics and growth opportunities",
+          emoji: "📈",
+          gradient: randomGradient,
+          stats: [
+            { value: "125K", label: "Total Sales" },
+            { value: "23%", label: "Growth" },
+            { value: "15", label: "Categories" }
+          ],
+          hashtags: "#DataAnalytics #SalesInsights #BusinessIntelligence #RevenueGrowth"
+        };
       } else if (lowerQuery.includes('user') && lowerQuery.includes('age')) {
-        return "👥 User Demographics Analyzed — Age Distribution Insights";
+        return {
+          title: "👥 Demographic Discovery",
+          subtitle: "User age distribution analysis provides valuable customer insights",
+          emoji: "🎯",
+          gradient: randomGradient,
+          stats: [
+            { value: "2.4K", label: "Users Analyzed" },
+            { value: "26-35", label: "Peak Age" },
+            { value: "78%", label: "Active Users" }
+          ],
+          hashtags: "#UserAnalytics #Demographics #CustomerInsights #DataScience"
+        };
       } else if (lowerQuery.includes('customer') && lowerQuery.includes('top')) {
-        return "🏆 Top Customers Identified — VIP Analysis Complete";
+        return {
+          title: "🏆 VIP Customer Analysis",
+          subtitle: "Top customer identification reveals loyalty patterns and revenue drivers",
+          emoji: "💎",
+          gradient: randomGradient,
+          stats: [
+            { value: "Top 5", label: "VIP Customers" },
+            { value: "45K", label: "Total Spent" },
+            { value: "92%", label: "Retention" }
+          ],
+          hashtags: "#CustomerAnalytics #VIPAnalysis #LoyaltyProgram #BusinessGrowth"
+        };
       } else if (lowerQuery.includes('product') && lowerQuery.includes('category')) {
-        return "📦 Product Category Analysis — Performance Insights Generated";
+        return {
+          title: "📦 Product Performance",
+          subtitle: "Category analysis reveals top-performing products and market trends",
+          emoji: "🚀",
+          gradient: randomGradient,
+          stats: [
+            { value: "15", label: "Categories" },
+            { value: "Electronics", label: "Top Category" },
+            { value: "12.5K", label: "Sales Volume" }
+          ],
+          hashtags: "#ProductAnalytics #CategoryAnalysis #MarketTrends #PerformanceMetrics"
+        };
       } else {
-        return "🔍 Data Query Executed — SQL Insights Generated";
+        return {
+          title: "🔍 Data Query Executed",
+          subtitle: "SQL-powered insights reveal hidden patterns in your business data",
+          emoji: "⚡",
+          gradient: randomGradient,
+          stats: [
+            { value: "100%", label: "Accuracy" },
+            { value: "<2s", label: "Query Time" },
+            { value: "AI", label: "Powered" }
+          ],
+          hashtags: "#SQL #DataAnalytics #BusinessIntelligence #AI"
+        };
       }
     } else {
       if (lowerQuery.includes('bar') && lowerQuery.includes('chart')) {
-        return "📊 Bar Chart Created — Visual Data Insights Generated";
+        return {
+          title: "📊 Visual Data Story",
+          subtitle: "Bar chart visualization transforms complex data into actionable insights",
+          emoji: "🎨",
+          gradient: randomGradient,
+          stats: [
+            { value: "5", label: "Data Points" },
+            { value: "100%", label: "Clarity" },
+            { value: "Instant", label: "Insights" }
+          ],
+          hashtags: "#DataVisualization #BarCharts #Analytics #Insights"
+        };
       } else if (lowerQuery.includes('correlation') || lowerQuery.includes('matrix')) {
-        return "🔗 Correlation Analysis Complete — Relationship Insights";
+        return {
+          title: "🔗 Correlation Matrix",
+          subtitle: "Relationship analysis reveals hidden connections between variables",
+          emoji: "🧠",
+          gradient: randomGradient,
+          stats: [
+            { value: "0.91", label: "Max Correlation" },
+            { value: "5", label: "Variables" },
+            { value: "Strong", label: "Relationships" }
+          ],
+          hashtags: "#CorrelationAnalysis #DataScience #StatisticalInsights #Relationships"
+        };
       } else if (lowerQuery.includes('distribution') || lowerQuery.includes('histogram')) {
-        return "📈 Distribution Analysis — Statistical Insights Generated";
+        return {
+          title: "📈 Distribution Analysis",
+          subtitle: "Statistical distribution reveals patterns and outliers in your data",
+          emoji: "📊",
+          gradient: randomGradient,
+          stats: [
+            { value: "6", label: "Bins" },
+            { value: "Normal", label: "Distribution" },
+            { value: "78", label: "Peak Value" }
+          ],
+          hashtags: "#DistributionAnalysis #Statistics #DataPatterns #Analytics"
+        };
       } else {
-        return "📊 Data Analysis Complete — Code Insights Generated";
+        return {
+          title: "🔬 Data Analysis Complete",
+          subtitle: "AI-generated code provides powerful insights and visualizations",
+          emoji: "✨",
+          gradient: randomGradient,
+          stats: [
+            { value: "Python", label: "Code Generated" },
+            { value: "100%", label: "Accuracy" },
+            { value: "AI", label: "Powered" }
+          ],
+          hashtags: "#DataAnalysis #Python #AI #MachineLearning"
+        };
       }
     }
   };

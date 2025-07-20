@@ -357,7 +357,7 @@ export default function HomePage() {
         setOutput(data.code || "No code generated.");
         // Detect chart type and set sample data
         const lower = input.toLowerCase();
-        console.log('Processed input:', lower);
+        
         if (lower.includes("bar") && lower.includes("chart")) {
           setChartType("bar");
           setChartData({
@@ -391,7 +391,10 @@ export default function HomePage() {
   return (
     <div className="container">
       <div className="header">
-        <h1>🗣️ SpeakQL</h1>
+        <h1>
+          <span className="title-main">🔗 Speak</span>
+          <span className="title-gradient">QL</span>
+        </h1>
         <p className="subtitle">Voice-Powered Natural Language to SQL & Data Analysis Code Generator</p>
         <div className="feature-badges">
           <div className="badge">🎤 Voice Recognition</div>
@@ -510,7 +513,9 @@ export default function HomePage() {
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; overflow-x: hidden; }
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         .header { text-align: center; margin-bottom: 40px; color: white; position: relative; }
-        .header h1 { font-size: 3.5rem; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); background: linear-gradient(45deg, #fff, #e0e7ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header h1 { font-size: 8.75rem; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .title-main { color: #1a202c; }
+        .title-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800; }
         .header .subtitle { font-size: 1.3rem; opacity: 0.9; margin-bottom: 20px; }
         .feature-badges { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
         .badge { background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; border: 1px solid rgba(255, 255, 255, 0.3); animation: float 3s ease-in-out infinite; }
